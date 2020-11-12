@@ -1,33 +1,22 @@
 package mx.tecnm.ladm_u2_practica2_drivera
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import java.util.*
 
-class Figura () {
+class Figura (punteroLienzo: Lienzo, posX:Float, posY:Float, nombreImagen:Int) {
 
-    var x = 0f
-    var y = 0f
-    var ancho = 0f
-    var alto = 0f
-    var bitmap : Bitmap ?= null
+    var puntero = punteroLienzo
+    var x = posX
+    var y = posY
+    var imagen = BitmapFactory.decodeResource(punteroLienzo.resources, nombreImagen)
 
-
-    //imagen
-    constructor(x:Int, y:Int, imagen:Bitmap) : this(){
-
-        bitmap = imagen
-        this.x = x.toFloat()
-        this.y = y.toFloat()
-        ancho = bitmap!!.width.toFloat()
-        alto = bitmap!!.height.toFloat()
-
-    }//constructor
 
 
     fun pintar(c: Canvas, p:Paint){
-        c.drawBitmap(bitmap!!, x, y, p)
+        c.drawBitmap(imagen, x, y, p)
     }//pintar
 
 
@@ -39,5 +28,29 @@ class Figura () {
         this.y = r.nextInt(1200-100).toFloat()
 
     }//coordRandom
+
+
+    fun estaEnArea(toqueX:Float, toqueY:Float) : Boolean{
+
+        var x2 = x+imagen.width
+        var y2 = y+imagen.height
+
+        if (toqueX >= x && toqueX <= x2){
+            if (toqueY >= y && toqueY <= y2){
+                return true
+            }//if-y
+        }//if-x
+
+        return false
+    }//estaEnArea
+
+
+    fun manchar(c: Canvas, p:Paint, x:Float, y:Float){
+        imagen = BitmapFactory.decodeResource(puntero.resources, R.drawable.splash)
+        this.x = x
+        this.y = y
+        c.drawBitmap(imagen, x, y,p)
+    }//manchar
+
 
 }//class
