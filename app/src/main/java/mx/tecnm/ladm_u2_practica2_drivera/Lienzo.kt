@@ -1,5 +1,6 @@
 package mx.tecnm.ladm_u2_practica2_drivera
 
+import android.app.AlertDialog
 import android.graphics.*
 import android.os.CountDownTimer
 import android.view.MotionEvent
@@ -8,14 +9,14 @@ import java.util.*
 
 class Lienzo (p:MainActivity) : View(p) {
 
-    var seg = 0
+    var seg = 60
     var contMoscas = 0
     var r = Random()
     var numMocas = r.nextInt(100-80)+80
     var aplastada = false
     var timerIniciado = false
-    var coordenadas = ""
-
+    var banderaFinal = true
+    var juego = true
     var xSplash = -1000f
     var ySplash = -1000f
 
@@ -23,7 +24,7 @@ class Lienzo (p:MainActivity) : View(p) {
 
         override fun onTick(millisUntilFinished: Long) {
 
-            seg = seg +1
+            seg --
             redibujar()
             invalidate()
 
@@ -31,11 +32,35 @@ class Lienzo (p:MainActivity) : View(p) {
 
         override fun onFinish() {
 
+            banderaFinal = true
+            juego = false
+            //invalidate()
+
+            if(contMoscas>=80){
+
+                AlertDialog.Builder(p)
+                        .setTitle("Felicidades")
+                        .setMessage("Moscas aplastadas: ${contMoscas} de ${numMocas}")
+                        .setPositiveButton("Ok"){d,i->d.dismiss()}
+                        .show()
+
+            }else{
+
+                AlertDialog.Builder(p)
+                        .setTitle("Resultado")
+                        .setMessage("Moscas aplastadas: ${contMoscas}")
+                        .setPositiveButton("Ok"){d,i->d.dismiss()}
+                        .show()
+
+            }//else
+
+
         }//onFinish
 
     }//timer
 
-    var mosca = Figura(this, -1000f, -1000f, R.drawable.mosca)
+    var mosca0 = Figura(this, -1000f, -1000f, R.drawable.mosca)
+    var mosca1 = Figura(this, -1000f, -1000f, R.drawable.mosca)
     var splash = Figura(this, xSplash, ySplash, R.drawable.splash)
 
 
@@ -46,23 +71,27 @@ class Lienzo (p:MainActivity) : View(p) {
         //fondo
         c.drawColor(Color.DKGRAY)
 
+        if (juego){
 
-        //contador
-        paint.textSize=50f
-        paint.setColor(Color.BLUE)
-        c.drawText(seg.toString(),650f,50f,paint)
-        c.drawText(numMocas.toString(),650f,100f,paint)
-        c.drawText(contMoscas.toString(),650f,150f,paint)
-        c.drawText(coordenadas,100f,200f, paint)
+            //contador
+            paint.textSize=40f
+            paint.setColor(Color.BLUE)
+            c.drawText("Tiempo restante ${seg}",350f,50f,paint)
+            c.drawText(numMocas.toString(),650f,100f,paint)
+            c.drawText(contMoscas.toString(),650f,150f,paint)
 
 
-        //mosca
-        mosca.pintar(c, paint)
+            //mosca
+            mosca0.pintar(c, paint)
+            mosca1.pintar(c, paint)
 
-        //splash
-        if(aplastada){
-            splash.pintar(c, paint)
-        }//
+
+            //splash
+            if(aplastada){
+                splash.pintar(c, paint)
+            }//if-Aplastada
+
+        }//if-Juego
 
     }//onDraw
 
@@ -71,30 +100,51 @@ class Lienzo (p:MainActivity) : View(p) {
 
         aplastada = false
 
-        if(event.action == MotionEvent.ACTION_DOWN){
+        if (juego){
 
-            if (timerIniciado == false){
-                timer.start()
-                timerIniciado = true
-            }//
+            if(event.action == MotionEvent.ACTION_DOWN){
 
-            if(mosca.estaEnArea(event.x, event.y)){
-                contMoscas = contMoscas+1
-                aplastada = true
+                if (timerIniciado == false){
 
-                splash.manchar(Canvas(),Paint(),event.x, event.y)
-                invalidate()
-            }//
+                    timer.start()
+                    timerIniciado = true
 
-        }//ActionDown
-        
+                }//if-timerIniciado
+
+                if(mosca0.estaEnArea((event.x), event.y)){
+
+                    contMoscas = contMoscas+1
+                    numMocas--
+                    aplastada = true
+
+                    splash.manchar(Canvas(),Paint(),(event.x), event.y)
+                    invalidate()
+
+                }//if-mosca-Area
+
+                if(mosca1.estaEnArea(event.x, event.y)){
+
+                    contMoscas = contMoscas+1
+                    numMocas--
+                    aplastada = true
+
+                    splash.manchar(Canvas(),Paint(),event.x, event.y)
+                    invalidate()
+
+                }//if-mosca-Area
+
+            }//ActionDown
+
+        }//if-juego
+
         return true
     }//onTouchEvent
 
 
     fun redibujar(){
 
-        mosca.coordRandom()
+        mosca0.coordRandom()
+        mosca1.coordRandom()
 
     }//redibujar
 
